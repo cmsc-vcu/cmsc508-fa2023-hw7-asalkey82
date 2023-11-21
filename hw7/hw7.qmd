@@ -97,11 +97,9 @@ This diagram show the relation between the five tables in the database. People i
 ```{mermaid}
 %%| echo: false
 erDiagram
-    PEOPLE ||--o{ PEOPLEROLES : exists_in
-    PEOPLE ||--o{ ROLES : occupies
-    PEOPLE ||--o{ SKILLS : has
-    PEOPLE ||--o{ PEOPLESKILLS: relates
-    SKILLS ||--|| PEOPLESKILLS: correlates
+    PEOPLE ||--o| PEOPLEROLES : exists_in
+    PEOPLE ||--o| PEOPLESKILLS: relates
+    PEOPLESKILLS ||--|| SKILLS: correlates
     PEOPLEROLES ||--|| ROLES : correlates
 
 
@@ -420,13 +418,18 @@ df
 ### List people names and skill names with the BOSS role
 ```{python}
 sql = f"""
-SELECT p.people_first_name, p.people_last_name, s.skills_name AS skills_name
-FROM people p
-JOIN peopleroles pr ON p.people_id = pr.people_id
-JOIN roles r ON pr.role_id = r.role_id
-LEFT JOIN peopleskills ps ON p.people_id = ps.people_id
-LEFT JOIN skills s ON ps.skills_id = s.id
-WHERE r.role_id = 5;
+select 
+    people_first_name,
+    people_last_name,
+    skills_name
+from 
+    people a
+    inner join peopleroles b on (a.people_id=b.people_id)
+    inner join roles c on (b.roles_id=c.roles_id)
+    inner join peopleskills d on (a.people_id=d.people_id)
+    inner join skills e on (d.skills_id=e.skills_id)
+where
+    b.roles_id = 5
 
 """
 ```
